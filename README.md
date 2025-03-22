@@ -124,3 +124,148 @@ MySQL/Postgres                                        +--------------------+
 - Can scale each service **independently** as traffic grows.
 
 ---
+
+
+
+# 📦 Live Shopping Platform - Database Architecture
+
+## 📑 Tables Overview
+
+### 🧑‍💼 Users
+
+| Column         | Type        | Description                   |
+| -------------- | ----------- | ----------------------------- |
+| id             | BIGINT (PK) | Unique user ID                |
+| name           | VARCHAR     | Full name                     |
+| email          | VARCHAR     | Email (unique)                |
+| password       | VARCHAR     | Hashed password               |
+| role           | ENUM        | buyer / seller / admin        |
+| profile_image  | VARCHAR     | Profile image URL             |
+| created_at     | TIMESTAMP   | Created date                  |
+| updated_at     | TIMESTAMP   | Updated date                  |
+
+### 🏷️ Categories
+
+| Column      | Type        | Description       |
+| ----------- | ----------- | ----------------- |
+| id          | BIGINT (PK) | Category ID       |
+| name        | VARCHAR     | Category name     |
+| slug        | VARCHAR     | SEO-friendly name |
+| created_at  | TIMESTAMP   | Created date      |
+| updated_at  | TIMESTAMP   | Updated date      |
+
+### 📦 Products
+
+| Column       | Type        | Description                    |
+| ------------ | ----------- | ------------------------------ |
+| id           | BIGINT (PK) | Product ID                     |
+| user_id      | BIGINT (FK) | Seller ID (Users)              |
+| category_id  | BIGINT (FK) | Category ID (Categories)       |
+| title        | VARCHAR     | Product title                  |
+| description  | TEXT        | Product description            |
+| price        | DECIMAL     | Product price                  |
+| image_url    | VARCHAR     | Product image URL              |
+| status       | ENUM        | active / inactive              |
+| created_at   | TIMESTAMP   | Created date                   |
+| updated_at   | TIMESTAMP   | Updated date                   |
+
+### 🔥 Auctions
+
+| Column          | Type        | Description                 |
+| --------------- | ----------- | --------------------------- |
+| id              | BIGINT (PK) | Auction ID                  |
+| product_id      | BIGINT (FK) | Product ID (Products)       |
+| start_time      | TIMESTAMP   | Auction start time          |
+| end_time        | TIMESTAMP   | Auction end time            |
+| starting_price  | DECIMAL     | Starting price              |
+| current_price   | DECIMAL     | Current price               |
+| status          | ENUM        | ongoing / completed         |
+| created_at      | TIMESTAMP   | Created date                |
+| updated_at      | TIMESTAMP   | Updated date                |
+
+### 💰 Bids
+
+| Column      | Type        | Description                 |
+| ----------- | ----------- | --------------------------- |
+| id          | BIGINT (PK) | Bid ID                      |
+| auction_id  | BIGINT (FK) | Auction ID (Auctions)       |
+| user_id     | BIGINT (FK) | User ID (Users)             |
+| bid_amount  | DECIMAL     | Bid amount                  |
+| created_at  | TIMESTAMP   | Created date                |
+
+### 📄 Orders
+
+| Column           | Type        | Description                   |
+| ---------------- | ----------- | ----------------------------- |
+| id               | BIGINT (PK) | Order ID                      |
+| user_id          | BIGINT (FK) | Buyer ID (Users)              |
+| product_id       | BIGINT (FK) | Product ID (Products)         |
+| auction_id       | BIGINT (FK) | Auction ID (nullable)         |
+| quantity         | INT         | Quantity ordered              |
+| total_price      | DECIMAL     | Total price                   |
+| payment_status   | ENUM        | pending / paid / refunded     |
+| shipping_status  | ENUM        | pending / shipped / delivered |
+| created_at       | TIMESTAMP   | Created date                  |
+| updated_at       | TIMESTAMP   | Updated date                  |
+
+### 💳 Payments
+
+| Column          | Type        | Description                     |
+| --------------- | ----------- | ------------------------------- |
+| id              | BIGINT (PK) | Payment ID                      |
+| order_id        | BIGINT (FK) | Order ID (Orders)               |
+| payment_method  | VARCHAR     | Stripe / PayPal etc.            |
+| transaction_id  | VARCHAR     | External transaction ID         |
+| amount          | DECIMAL     | Payment amount                  |
+| status          | ENUM        | success / failed / pending      |
+| created_at      | TIMESTAMP   | Created date                    |
+
+### 💬 Chats
+
+| Column      | Type        | Description                 |
+| ----------- | ----------- | --------------------------- |
+| id          | BIGINT (PK) | Chat ID                     |
+| auction_id  | BIGINT (FK) | Auction ID (Auctions)       |
+| user_id     | BIGINT (FK) | User ID (Users)             |
+| message     | TEXT        | Chat message                |
+| created_at  | TIMESTAMP   | Created date                |
+
+### 📺 Streams
+
+| Column         | Type        | Description             |
+| -------------- | ----------- | ----------------------- |
+| id             | BIGINT (PK) | Stream ID               |
+| user_id        | BIGINT (FK) | Seller ID (Users)       |
+| stream_url     | VARCHAR     | Live stream URL         |
+| recording_url  | VARCHAR     | Recorded video URL      |
+| status         | ENUM        | live / offline          |
+| created_at     | TIMESTAMP   | Created date            |
+| updated_at     | TIMESTAMP   | Updated date            |
+
+### 🔔 Notifications
+
+| Column      | Type        | Description                     |
+| ----------- | ----------- | ------------------------------- |
+| id          | BIGINT (PK) | Notification ID                 |
+| user_id     | BIGINT (FK) | User ID (Users)                 |
+| message     | TEXT        | Notification content            |
+| type        | VARCHAR     | Notification type               |
+| status      | ENUM        | read / unread                   |
+| created_at  | TIMESTAMP   | Created date                    |
+
+---
+
+## 📊 Entity Relationship Summary
+
+```
+Users --< Products --< Auctions --< Bids
+   |         |             |
+   |         |             --> Chats
+   |         --> Orders --> Payments
+   |             |
+   |             --> Notifications
+   --> Streams
+```
+
+---
+
